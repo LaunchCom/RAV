@@ -1,6 +1,9 @@
 require "./build/Scanner"
+require "./build/Parser"
 
 Scanner.NumOfLines.times do
-	puts Scanner.GetTokens.join " "
-	puts "------"
+	toks = Scanner.GetTokens
+	Parser.Evaluate toks
 end
+
+Parser.Inst
