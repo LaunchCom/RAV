@@ -4,6 +4,7 @@ require "./build/Parser"
 Scanner.NumOfLines.times do
 	toks = Scanner.GetTokens
 	Parser.Evaluate toks
+	Parser.Instructions
 end
 
-Parser.Inst
+puts Parser.Instructions

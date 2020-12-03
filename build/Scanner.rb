@@ -15,7 +15,7 @@ class Scanner
 		line = tokenArray.join "&##%"
 
 		#replace set tokens with new delimiter
-		tokens = ["==", "!=", ">=", "<=", "+=", "-=", "*=", "/=", "+", "-", "*", "/", "%", "=", " ", "(", ")"]
+		tokens = ["==", "!=", ">=", "<=", "+=", "-=", "*=", "/=", "<", ">", "+", "-", "*", "/", "%", "=", " ", "(", ")"]
 		for tok in tokens
 			delimiterArray = tok.split ""
 			delimiter = delimiterArray.join "&##%"
