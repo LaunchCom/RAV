@@ -102,7 +102,8 @@ class Parser
 
 	# method for evaluating expressions
 	def self.ExpEval instrArray
-		if instrArray.length == 1
+
+		if instrArray.length == 1 && instrArray[0] != "}"
 			opA = instrArray[0]
 			if opA !~ /\D/
 				@@instructions.push "MOV %r" + @@sp.to_s + " $" + opA
@@ -220,6 +221,26 @@ class Parser
 			@@instructions.insert(@@instructions.length - 1, "JMP .end" + @@endLbl.to_s + " $2")
 		end
 
+		# handle function calls
+		argumentIndex = 0
+		while argumentIndex < tokens.length
+			if tokens[argumentIndex] =~ /.+\.call/
+				identifier = tokens[argumentIndex][0...tokens[argumentIndex].length - 5]
+				tokens[argumentIndex] = identifier
+				@@instructions.push "MOV %sp <STACK>"
+				@@instructions.push "MOV %cs <CODE>"
+				argumentIndex += 1
+				while tokens[argumentIndex] != ")"
+					if tokens[argumentIndex] != "," && tokens[argumentIndex] != "("
+						@@instructions.push "PSH " + tokens[argumentIndex]
+					end
+					argumentIndex += 1
+				end
+				@@instructions.push "GTO .fn" + identifier
+				break
+			end
+			argumentIndex += 1
+		end
 
 		# parse through tokens
 		while index < tokens.length
@@ -281,7 +302,7 @@ class Parser
 			if tokens[tokens.length - 1] == "{" && !((tokens.include? "else") || (tokens.include? "fn"))
 				@@instructions.push("JCC .end" + (@@endLbl).to_s + " %r" + (@@sp - 1).to_s)
 			elsif tokens[0] == "return"
-				@@instructions.push "RET %" + (@@sp - 1).to_s
+				@@instructions.push "RET %r" + (@@sp - 1).to_s
 			end
 	end
 
