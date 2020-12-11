@@ -26,6 +26,8 @@ class Parser
 				address = opA.delete("^0-9")
 				identifier = opA.delete(".0-9")
 				@@instructions.push "LOD %a " + (Env.Hash(identifier) + address.to_i).to_s
+			elsif opA =~ /.+\(.*\)/
+				puts "POOP"
 			else
 				@@instructions.push "LOD %a " + (Env.Hash opA).to_s
 			end
@@ -100,6 +102,21 @@ class Parser
 
 	# method for evaluating expressions
 	def self.ExpEval instrArray
+		if instrArray.length == 1
+			opA = instrArray[0]
+			if opA !~ /\D/
+				@@instructions.push "MOV %r" + @@sp.to_s + " $" + opA
+			elsif opA =~ /.+\.\d+/
+				address = opA.delete("^0-9")
+				identifier = opA.delete(".0-9")
+				@@instructions.push "LOD %r" + @@sp.to_s + " " + (Env.Hash(identifier) + address.to_i).to_s
+			elsif opA =~ /.+\(.*\)/
+				puts "POOP"
+			else
+				@@instructions.push "LOD %r" + @@sp.to_s + " " + (Env.Hash opA).to_s
+			end
+			@@sp += 1
+		end
 
 		# parse through tokens
 		while @@ip < instrArray.length
@@ -177,6 +194,17 @@ class Parser
 		elsif tokens[0] == "if"
 			@@startLbl += 1
 			@@endLbl += 1
+		elsif tokens[0] == "fn"
+			@@startLbl += 1
+			@@endLbl += 1
+			@@instructions.push ".fn" + tokens[1]
+			parameterIndex = 3
+			while tokens[parameterIndex] != ")"
+				if tokens[parameterIndex] != ","
+					@@instructions.push "POP " + Env.Hash(tokens[parameterIndex]).to_s
+				end
+				parameterIndex += 1
+			end
 
 		# insert end labels at closing structures
 		elsif tokens[0] == "}"
@@ -249,9 +277,11 @@ class Parser
 			end
 			index += 1
 		end
-		# branch at conditional
-			if tokens[tokens.length - 1] == "{" && !(tokens.include? "else")
+		# branch at conditional, or return
+			if tokens[tokens.length - 1] == "{" && !((tokens.include? "else") || (tokens.include? "fn"))
 				@@instructions.push("JCC .end" + (@@endLbl).to_s + " %r" + (@@sp - 1).to_s)
+			elsif tokens[0] == "return"
+				@@instructions.push "RET %" + (@@sp - 1).to_s
 			end
 	end
 
