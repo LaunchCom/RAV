@@ -1,0 +1,5 @@
+fn print(msg) {
+	(msg);
+	asm "CAL 0";
+	return (0);
+}

@@ -1,7 +1,13 @@
-fn b() {
-	return (1)
-}
+import stdlib/sysio.rav
 
 fn main() {
-	x = b.call();
+	msg = "Hello world!";
+	print.call(msg);
+
+	int x = 0;
+
+	while (x <= 5) {
+		print.call(x);
+		x = x + 1;
+	}
 }

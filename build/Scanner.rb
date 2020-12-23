@@ -4,10 +4,10 @@ class Scanner
 	@@lineNum = 0
 
 	# method for retrieving tokens of line
-	def self.GetTokens
+	def self.GetTokens rawCode
 
 		# get line from file and increment line num
-		line = File.read("main.rav").split("\n")[@@lineNum]
+		line = rawCode.split("\n")[@@lineNum]
 		@@lineNum += 1
 
 		# split up each character with a delimiter
@@ -55,7 +55,7 @@ class Scanner
 		line = tokenArray.join "&##%"
 
 		# replace set tokens with new delimiter
-		tokens = ["==", "!=", ">=", "<=", "+=", "-=", "*=", "/=", "<", ">", "+", "-", "*", "/", "%", "=", " ", "(", ")", ","]
+		tokens = ["==", "!=", ">=", "<=", "+=", "-=", "*=", "/=", "<", ">", "+", "-", "*", "/", "%", "=", " ", "(", ")", ",", ";"]
 		for tok in tokens
 			delimiterArray = tok.split ""
 			delimiter = delimiterArray.join "&##%"
@@ -87,10 +87,32 @@ class Scanner
 	end
 
 	# method for getting the number of lines in file
-	def self.NumOfLines
+	def self.NumOfLines rawCode
 
 		# split by new line, return length
-		lineArray = File.read("main.rav").split("\n")
+		lineArray = rawCode.split("\n")
 		return lineArray.length
+	end
+
+	# method for reading entire file contents
+	def self.ReadFile fileName
+		fileContents = File.read(fileName)
+		return fileContents
+	end
+
+	# method for external directory
+	def self.Redirect rawCode
+		lines = rawCode.split "\n"
+		line = 0
+		numOfLines = lines.length
+		while line < numOfLines
+			toks = lines[line].split " "
+			if toks[0] == "import"
+				newCode = Scanner.ReadFile toks[1]
+				lines[line] = newCode
+			end
+			line += 1
+		end
+		return lines.join "\n"
 	end
 end

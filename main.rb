@@ -1,10 +1,14 @@
 require "./build/Scanner"
 require "./build/Parser"
+require "./build/Vm"
 
-Scanner.NumOfLines.times do
-	toks = Scanner.GetTokens
+rawCode = Scanner.ReadFile "main.rav"
+linkedCode = Scanner.Redirect rawCode
+
+Scanner.NumOfLines(linkedCode).times do
+	toks = Scanner.GetTokens linkedCode
 	Parser.Evaluate toks
 	Parser.ResetState
 end
 
-puts Parser.Instructions
+Vm.Execute Parser.Instructions

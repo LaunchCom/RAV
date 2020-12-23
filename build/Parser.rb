@@ -26,8 +26,6 @@ class Parser
 				address = opA.delete("^0-9")
 				identifier = opA.delete(".0-9")
 				@@instructions.push "LOD %a " + (Env.Hash(identifier) + address.to_i).to_s
-			elsif opA =~ /.+\(.*\)/
-				puts "POOP"
 			else
 				@@instructions.push "LOD %a " + (Env.Hash opA).to_s
 			end
@@ -111,8 +109,6 @@ class Parser
 				address = opA.delete("^0-9")
 				identifier = opA.delete(".0-9")
 				@@instructions.push "LOD %r" + @@sp.to_s + " " + (Env.Hash(identifier) + address.to_i).to_s
-			elsif opA =~ /.+\(.*\)/
-				puts "POOP"
 			else
 				@@instructions.push "LOD %r" + @@sp.to_s + " " + (Env.Hash opA).to_s
 			end
@@ -199,13 +195,17 @@ class Parser
 			@@startLbl += 1
 			@@endLbl += 1
 			@@instructions.push ".fn" + tokens[1]
-			parameterIndex = 3
-			while tokens[parameterIndex] != ")"
+			parameterIndex = tokens.length - 3
+			while tokens[parameterIndex] != "("
 				if tokens[parameterIndex] != ","
 					@@instructions.push "POP " + Env.Hash(tokens[parameterIndex]).to_s
 				end
-				parameterIndex += 1
+				parameterIndex -= 1
 			end
+
+		elsif tokens[0] == "asm"
+			externalInstruction = tokens[1][1...tokens[1].length - 1]
+			@@instructions.push externalInstruction
 
 		# insert end labels at closing structures
 		elsif tokens[0] == "}"
@@ -218,7 +218,7 @@ class Parser
 		if tokens[0] == "else" || tokens[1] == "else"
 			@@startLbl += 1
 			@@endLbl += 1
-			@@instructions.insert(@@instructions.length - 1, "JMP .end" + @@endLbl.to_s + " $2")
+			@@instructions.insert(@@instructions.length - 1, "JMP .end" + @@endLbl.to_s + " 2")
 		end
 
 		# handle function calls
@@ -344,6 +344,8 @@ class Parser
 			end
 			i += 1
 		end
+
+		@@instructions.push "HLT"
 
 		return @@instructions
 	end
