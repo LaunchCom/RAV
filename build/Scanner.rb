@@ -101,18 +101,26 @@ class Scanner
 	end
 
 	# method for external directory
-	def self.Redirect rawCode
+	def self.Link rawCode
+
+		# retrieve all lines, set up counter
 		lines = rawCode.split "\n"
 		line = 0
 		numOfLines = lines.length
+
+		# for each line of code, determine if importing
 		while line < numOfLines
 			toks = lines[line].split " "
+
+			# if importing, replace with fully linked code
 			if toks[0] == "import"
 				newCode = Scanner.ReadFile toks[1]
 				lines[line] = newCode
 			end
 			line += 1
 		end
+
+		# return newly linked file
 		return lines.join "\n"
 	end
 end
